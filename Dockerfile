@@ -13,7 +13,7 @@ RUN pip3 install --upgrade pip
 ADD requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-# Add your model weight files 
+# Add your model weight files
 # (in this case we have a python script)
 ADD download.py .
 RUN python3 download.py

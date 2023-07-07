@@ -1,18 +1,27 @@
-from potassium import Potassium, Request, Response
+from io import BytesIO
+import base64
 
-from transformers import pipeline
+from potassium import Potassium, Request, Response
+from diffusers import DiffusionPipeline, DDPMScheduler
 import torch
 
-app = Potassium("my_app")
+app = Potassium("cro-izi-banana")
 
 # @app.init runs at startup, and loads models into the app's context
 @app.init
 def init():
-    device = 0 if torch.cuda.is_available() else -1
-    model = pipeline('fill-mask', model='bert-base-uncased', device=device)
-   
+    repo_id="Linaqruf/anything-v3.0"
+    ddpm = DDPMScheduler.from_pretrained(repo_id, subfolder="scheduler")
+
+    model = DiffusionPipeline.from_pretrained(
+        repo_id,
+        # use_safetensors=True,
+        torch_dtype=torch.float16,
+        scheduler=ddpm
+    ).to("cuda")
+
     context = {
-        "model": model
+        "model": model,
     }
 
     return context
@@ -20,12 +29,31 @@ def init():
 # @app.handler runs for every call
 @app.handler()
 def handler(context: dict, request: Request) -> Response:
-    prompt = request.json.get("prompt")
     model = context.get("model")
-    outputs = model(prompt)
+
+    prompt = request.json.get("prompt")
+    # negative_prompt = "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers), cleavage, nudity, naked, nude"
+
+    image = model(
+        prompt=prompt,
+        # negative_prompt=negative_prompt,
+        guidance_scale=7,
+        num_inference_steps=request.json.get("steps", 50),
+        generator=torch.Generator(device="cuda").manual_seed(request.json.get("seed")) if request.json.get("seed") else None,
+        width=512,
+        height=768,
+    ).images[0]
+
+    buffered = BytesIO()
+    image.save(buffered, format="JPEG", quality=80)
+    img_str = base64.b64encode(buffered.getvalue())
+
+    # You could also consider writing this image to S3
+    # and returning the S3 URL instead of the image data
+    # for a slightly faster response time
 
     return Response(
-        json = {"outputs": outputs[0]}, 
+        json = {"output": str(img_str, "utf-8")},
         status=200
     )
 

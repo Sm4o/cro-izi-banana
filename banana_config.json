@@ -1,24 +1,12 @@
 {
-    "name": "",
+    "name": "cro-izi-banana",
     "category": "",
     "example_input": {
-        "prompt": "Hello I am a [MASK] model."
+        "prompt": "colorful, 1girl, high angle, software developer protagonist, hacker, ((computer screen)), matrix, ((keyboard)), glow, light particles, wallpaper, chromatic aberration",
+        "seed": 42
     },
     "example_output": {
-        "outputs":[
-            {
-                "score":0.13177461922168732,
-                "token":4827,
-                "token_str":"fashion",
-                "sequence":"hello i am a fashion model."
-            },
-            {
-                "score":0.1120428815484047,
-                "token":2535,
-                "token_str":"role",
-                "sequence":"hello i am a role model."
-            }
-        ]
+        "output": "<base 64 image data>"
     },
     "version": "1"
 }
