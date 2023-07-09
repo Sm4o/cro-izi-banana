@@ -5,6 +5,10 @@ FROM pytorch/pytorch:1.11.0-cuda11.3-cudnn8-runtime
 
 WORKDIR /
 
+# To download custom models from Huggingface
+ARG HF_AUTH_TOKEN=""
+ENV HF_AUTH_TOKEN=${HF_AUTH_TOKEN}
+
 # Install git
 RUN apt-get update && apt-get install -y git
 

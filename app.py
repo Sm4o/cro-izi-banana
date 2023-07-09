@@ -1,27 +1,30 @@
+import os
 from io import BytesIO
 import base64
 
 from potassium import Potassium, Request, Response
-from diffusers import DiffusionPipeline, DDPMScheduler
+# from diffusers import DiffusionPipeline, DDPMScheduler
+from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
+
 import torch
 
 app = Potassium("cro-izi-banana")
 
+HF_AUTH_TOKEN = os.environ.get("HF_AUTH_TOKEN")
+
+
 # @app.init runs at startup, and loads models into the app's context
 @app.init
 def init():
-    repo_id="Linaqruf/anything-v3.0"
-    ddpm = DDPMScheduler.from_pretrained(repo_id, subfolder="scheduler")
-
-    model = DiffusionPipeline.from_pretrained(
-        repo_id,
-        # use_safetensors=True,
-        torch_dtype=torch.float16,
-        scheduler=ddpm
+    pipeline = StableDiffusionPipeline.from_pretrained(
+        "Linaqruf/anything-v3.0", torch_dtype=torch.float32,
     ).to("cuda")
+    pipeline.scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)
+    pipeline.load_lora_weights("Sm4o/wanostyle_2_offset", weight_name="wanostyle_2_offset.safetensors", use_auth_token=HF_AUTH_TOKEN)
+    pipeline.load_lora_weights("Sm4o/cro9", weight_name="cro9.safetensors", use_auth_token=HF_AUTH_TOKEN)
 
     context = {
-        "model": model,
+        "model": pipeline,
     }
 
     return context
@@ -32,11 +35,16 @@ def handler(context: dict, request: Request) -> Response:
     model = context.get("model")
 
     prompt = request.json.get("prompt")
-    # negative_prompt = "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers), cleavage, nudity, naked, nude"
+    negative_prompt = (
+        "face,  ((eyes)), mouth (painting by bad-artist-anime:0.9), (painting by bad-artist:0.9), "
+        "watermark, text, error, ((blurry)), jpeg artifacts, cropped, worst quality, low quality, "
+        "normal quality, jpeg artifacts, signature, watermark, username, artist name, (worst quality, "
+        "low quality:1.4), bad anatomy, watermark, signature, text, logo"
+    )
 
     image = model(
         prompt=prompt,
-        # negative_prompt=negative_prompt,
+        negative_prompt=negative_prompt,
         guidance_scale=7,
         num_inference_steps=request.json.get("steps", 50),
         generator=torch.Generator(device="cuda").manual_seed(request.json.get("seed")) if request.json.get("seed") else None,
