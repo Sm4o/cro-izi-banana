@@ -17,6 +17,10 @@ RUN pip3 install --upgrade pip
 ADD requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
+# Install Opencv and controlnet-aux
+RUN pip install -q opencv-contrib-python
+RUN pip install -q controlnet_aux
+
 # Add your model weight files
 # (in this case we have a python script)
 ADD download.py .

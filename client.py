@@ -12,13 +12,19 @@ model = client.Client(
 )
 
 inputs = {
-    "prompt": "Ape drinking a mojito",
+    "prompt": (
+        "man wearing a ((white helmet covering face with white vizor))  <lora:cro9:0.6> , wanostyle art"
+        " , monkey d luffy,  solo,, ((masterpiece)), (best quality), (extremely detailed), "
+        "depth of field, sketch, dark intense shadows, sharp focus, soft lighting, hdr, colorful, "
+        "good composition,  spectacular, closed shirt, anime screencap,, "
+        "<lora:onePieceWanoSagaStyle_v2Offset:1>  , <lora:wanostyle_2_offset:1>  ((good contrast))"
+    ),
+    "seed": 1064668731
 }
 
 img_data, meta = model.call("/", inputs)
 
 print(img_data)
-breakpoint()
 
-with open("imageToSave.png", "wb") as image_file:
+with open("imageToSave3.png", "wb") as image_file:
     image_file.write(base64.b64decode(img_data["output"]))

@@ -1,3 +1,4 @@
 potassium
 transformers
 diffusers[torch]
+xformers==0.0.16
