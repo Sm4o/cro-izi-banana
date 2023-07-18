@@ -10,7 +10,7 @@ ARG HF_AUTH_TOKEN=""
 ENV HF_AUTH_TOKEN=${HF_AUTH_TOKEN}
 
 # Install git
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y git ffmpeg libsm6 libxext6
 
 # Install python packages
 RUN pip3 install --upgrade pip
