@@ -20,11 +20,6 @@ HF_AUTH_TOKEN = os.environ.get("HF_AUTH_TOKEN")
 # @app.init runs at startup, and loads models into the app's context
 @app.init
 def init():
-    # pipe = StableDiffusionControlNetPipeline.from_pretrained(
-    #     "runwayml/stable-diffusion-v1-5",
-    #     controlnet=controlnet,
-    #     torch_dtype=torch.float16
-    # )
     controlnet = ControlNetModel.from_pretrained("lllyasviel/sd-controlnet-canny", torch_dtype=torch.float16)
     pipeline = StableDiffusionControlNetPipeline.from_pretrained(
         "Linaqruf/anything-v3.0", controlnet=controlnet, torch_dtype=torch.float32,
@@ -52,13 +47,6 @@ def handler(context: dict, request: Request) -> Response:
     image_data = request.json.get('image_data', None)
     num_inference_steps = request.json.get("steps", 50)
 
-    # negative_prompt = (
-    #     "face,  ((eyes)), mouth (painting by bad-artist-anime:0.9), (painting by bad-artist:0.9), "
-    #     "watermark, text, error, ((blurry)), jpeg artifacts, cropped, worst quality, low quality, "
-    #     "normal quality, jpeg artifacts, signature, watermark, username, artist name, (worst quality, "
-    #     "low quality:1.4), bad anatomy, watermark, signature, text, logo"
-    # )
-
     # Generate canny image
     image = Image.open(BytesIO(base64.b64decode(image_data))).convert("RGB") 
     image = np.array(image)
@@ -78,7 +66,8 @@ def handler(context: dict, request: Request) -> Response:
     model.enable_xformers_memory_efficient_attention()
 
     image = model(
-        prompt=prompt,
+        prompt,
+        canny_image,
         negative_prompt=negative_prompt,
         guidance_scale=7,
         num_inference_steps=num_inference_steps,
