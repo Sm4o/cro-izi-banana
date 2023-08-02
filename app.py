@@ -20,7 +20,7 @@ HF_AUTH_TOKEN = os.environ.get("HF_AUTH_TOKEN")
 # @app.init runs at startup, and loads models into the app's context
 @app.init
 def init():
-    controlnet = ControlNetModel.from_pretrained("lllyasviel/sd-controlnet-canny", torch_dtype=torch.float16)
+    controlnet = ControlNetModel.from_pretrained("lllyasviel/sd-controlnet-canny", torch_dtype=torch.float32)
     pipeline = StableDiffusionControlNetPipeline.from_pretrained(
         "Linaqruf/anything-v3.0", controlnet=controlnet, torch_dtype=torch.float32,
     ).to("cuda")

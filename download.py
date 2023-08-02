@@ -11,7 +11,7 @@ HF_AUTH_TOKEN = os.environ.get("HF_AUTH_TOKEN")
 def download_model():
     # do a dry run of loading the huggingface model, which will download weights
     # this should match the model load used in app.py's init function
-    controlnet = ControlNetModel.from_pretrained("lllyasviel/sd-controlnet-canny", torch_dtype=torch.float16)
+    controlnet = ControlNetModel.from_pretrained("lllyasviel/sd-controlnet-canny", torch_dtype=torch.float32)
     pipeline = StableDiffusionPipeline.from_pretrained(
         "Linaqruf/anything-v3.0", controlnet=controlnet, torch_dtype=torch.float32,
     ).to("cuda")
