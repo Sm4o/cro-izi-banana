@@ -6,7 +6,7 @@ import cv2
 from PIL import Image
 from io import BytesIO
 from potassium import Potassium, Request, Response
-from diffusers import StableDiffusionControlNetPipeline, ControlNetModel, DPMSolverMultistepScheduler, UniPCMultistepScheduler
+from diffusers import StableDiffusionControlNetPipeline, ControlNetModel, UniPCMultistepScheduler, EulerAncestralDiscreteScheduler
 from diffusers.utils import load_image
 import numpy as np
 
@@ -24,7 +24,7 @@ def init():
     pipeline = StableDiffusionControlNetPipeline.from_pretrained(
         "Linaqruf/anything-v3.0", controlnet=controlnet, torch_dtype=torch.float32,
     ).to("cuda")
-    pipeline.scheduler = DPMSolverMultistepScheduler.from_config(pipeline.scheduler.config)
+    pipeline.scheduler = EulerAncestralDiscreteScheduler.from_config(pipeline.scheduler.config)
     pipeline.load_lora_weights("Sm4o/wanostyle_2_offset", weight_name="wanostyle_2_offset.safetensors", use_auth_token=HF_AUTH_TOKEN)
     pipeline.load_lora_weights("Sm4o/cro9", weight_name="cro9.safetensors", use_auth_token=HF_AUTH_TOKEN)
 
