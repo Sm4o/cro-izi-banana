@@ -72,8 +72,8 @@ def handler(context: dict, request: Request) -> Response:
         guidance_scale=7,
         num_inference_steps=num_inference_steps,
         generator=torch.Generator(device="cuda").manual_seed(request.json.get("seed")) if request.json.get("seed") else None,
-        width=512,
-        height=768,
+        width=800,
+        height=800,
     ).images[0]
 
     buffered = BytesIO()
